@@ -16,6 +16,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+/**
+ * Manage how to generate code
+ * @author Allen.Wang
+ *
+ */
 @Controller
 @RequestMapping("/pm/engine")
 public class PmEngineConroller {
