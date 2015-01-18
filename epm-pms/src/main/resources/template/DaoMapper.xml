@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper
+	namespace="${project.javaBasicPackagePath}.dao.${model.subSystemUpper}${model.modelNameUpper}Dao">
+	<sql id="${model.subSystem}${model.modelNameUpper}DefaultColums">
+		<![CDATA[
+			<#list properties as property>
+				${property.dbColumnName} AS ${property.javaPropertyName}<#if property_has_next >,</#if>
+			</#list>
+		]]>
+	</sql>
+
+	<sql id="${model.subSystem}${model.modelNameUpper}DefaultWheres">
+		<where>
+			<#list properties as property>
+			<if test="${property.javaPropertyName} != null">
+				${property.dbColumnName} = ${r"#{"}${property.javaPropertyName}${r"}"}
+			</if>
+			</#list>
+		</where>
+	</sql>
+
+	<insert id="insert${model.subSystemUpper}${model.modelNameUpper}" parameterType="${project.javaBasicPackagePath}.entity.${model.subSystemUpper}${model.modelNameUpper}Bean">
+		<![CDATA[
+		INSERT INTO ${model.tableName}(
+			<#list properties as property>
+			${property.dbColumnName}<#if property_has_next >,</#if>
+			</#list>
+		) VALUES(
+			<#list properties as property>
+			${r"#{"}${property.javaPropertyName}${r"}"}<#if property_has_next >,</#if>
+			</#list>
+		)
+		]]>
+
+	</insert>
+	
+	<select id="select${model.subSystemUpper}${model.modelNameUpper}sBy${model.modelNameUpper}Bean" parameterType="${project.javaBasicPackagePath}.entity.${model.subSystemUpper}${model.modelNameUpper}Bean"
+		resultType="${project.javaBasicPackagePath}.entity.${model.subSystemUpper}${model.modelNameUpper}Bean">
+		SELECT
+			<include refid="${model.subSystem}${model.modelNameUpper}DefaultColums" />
+		FROM ${model.tableName}
+		<include refid="${model.subSystem}${model.modelNameUpper}DefaultWheres" />
+	</select>
+	
+	<select id="select${model.subSystemUpper}${model.modelNameUpper}sByMap" parameterType="map"
+		resultType="${project.javaBasicPackagePath}.entity.${model.subSystemUpper}${model.modelNameUpper}Bean">
+		SELECT
+			<include refid="${model.subSystem}${model.modelNameUpper}DefaultColums" />
+		FROM ${model.tableName}
+			<include refid="${model.subSystem}${model.modelNameUpper}DefaultWheres" />
+	</select>
+	
+	<select id="select${model.subSystemUpper}${model.modelNameUpper}By${model.modelNameUpper}Id" parameterType="java.lang.String"
+		resultType="${project.javaBasicPackagePath}.entity.${model.subSystemUpper}${model.modelNameUpper}Bean">
+		SELECT
+			<include refid="${model.subSystem}${model.modelNameUpper}DefaultColums" />
+		FROM ${model.tableName}
+		WHERE
+		<#list properties as property>
+			<#if property.primaryType = '0'>
+			${model.tableName}.${property.dbColumnName} = ${r"'${"}value${r"}'"}
+			</#if>
+		</#list>
+	</select>
+	
+	
+	<update id="update${model.subSystemUpper}${model.modelNameUpper}By${model.modelNameUpper}Bean" parameterType="${project.javaBasicPackagePath}.entity.${model.subSystemUpper}${model.modelNameUpper}Bean">
+		UPDATE ${model.tableName}
+		<set>
+			<#list properties as property>
+				<if test="${property.javaPropertyName} != null">
+					${property.dbColumnName} = ${r"${'"}${property.javaPropertyName}${r"'}"}<#if property_has_next >,</#if>
+				</if>
+			</#list>
+		</set>
+		<include refid="${model.subSystem}${model.modelNameUpper}DefaultWheres" />
+	</update>
+	
+	<delete id="delete${model.subSystemUpper}${model.modelNameUpper}By${model.modelNameUpper}By${model.modelNameUpper}Bean" parameterType="${project.javaBasicPackagePath}.entity.${model.subSystemUpper}${model.modelNameUpper}Bean">
+		DELETE FROM ${model.tableName}
+		<include refid="${model.subSystem}${model.modelNameUpper}DefaultWheres" />                                           	
+     </delete>
+     
+	<delete id="delete${model.subSystemUpper}${model.modelNameUpper}By${model.modelNameUpper}Id" parameterType="java.lang.String">
+		DELETE FROM ${model.tableName}
+		WHERE
+		<#list properties as property>
+			<#if property.primaryType = '0'>
+			${model.tableName}.${property.dbColumnName} = ${r"'${"}value${r"}'"}
+			</#if>
+		</#list>                                          	
+     </delete>
+	
+</mapper>

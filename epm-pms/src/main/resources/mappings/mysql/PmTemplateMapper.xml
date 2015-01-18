@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="org.easyworld.pm.dao.PmTemplateDao">
+
+	<select id="selectTemplatesByProject" resultType="org.easyworld.pm.bean.PmTemplateBean" parameterType="java.util.Map">
+		SELECT 
+			pm_template_info.template_id AS templateId,
+			pm_template_info.template_name AS templateName,
+			pm_template_info.template_file_name AS templateFileName,
+			pm_template_info.template_value AS templateValue,
+			pm_template_info.template_type AS templateType,
+			pm_template_info.template_description AS templateDescription,
+			pm_template_info.create_date AS createDate,
+			pm_template_info.create_login_no AS createLoginNo,
+			pm_template_info.template_file_name AS templateFileName,
+			pm_template_info.source_type AS sourceType,
+			pm_template_info.remark AS remark
+		FROM pm_project_info AS pm_project_info 
+		LEFT JOIN pm_project_item_info AS pm_project_item_info ON pm_project_info.project_id = pm_project_item_info.project_id 
+		LEFT JOIN pm_template_info AS pm_template_info ON pm_project_item_info.item_id = pm_template_info.template_id
+		WHERE pm_project_item_info.project_id = #{projectId}
+	</select>
+</mapper>

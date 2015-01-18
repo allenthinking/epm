@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="org.easyworld.pm.dao.PmModelDao">
+	<sql id="pmModelDefaultColums">
+		<![CDATA[
+			model_id AS modelId,
+			model_name AS modelName,
+			model_value AS modelValue,
+			model_description AS modelDescription,
+			create_date AS createDate,
+			sub_system AS subSystem,
+			create_login_no AS createLoginNo,
+			table_name AS tableName,
+			model_alias AS modelAlias,
+			project_id AS projectId,
+			remark AS remark
+		]]>
+	</sql>
+
+	<sql id="pmModelDefaultWheres">
+		<where>
+			<if test="modelId != null">
+				model_id = #{modelId}
+			</if>
+			<if test="modelName != null">
+				model_name = #{modelName}
+			</if>
+			<if test="modelValue != null">
+				model_value = #{modelValue}
+			</if>
+			<if test="createLoginNo != null">
+				create_login_no = #{createLoginNo}
+			</if>
+			<if test="createDate != null">
+				create_date = #{createDate}
+			</if>
+		</where>
+	</sql>
+
+	<insert id="insertPmModel" parameterType="org.easyworld.pm.bean.PmModelBean">
+		<![CDATA[
+			INSERT INTO pm_model_info
+			(
+				model_id,
+				model_name,
+				model_value,
+				model_description,
+				create_date,
+				create_login_no,
+				remark
+			)VALUES
+			(
+				#{modelId},
+				#{modelName},
+				#{modelValue},
+				#{modelDescription},
+				#{createLoginNo},
+				#{createDate},
+				#{remark}
+			)
+		]]>
+	</insert>
+
+	<select id="getModelsByDefault" parameterType="org.easyworld.pm.bean.PmModelBean"
+		resultType="org.easyworld.pm.bean.PmModelBean">
+		SELECT
+		<include refid="pmModelDefaultColums" />
+		FROM pm_model_info
+		<include refid="pmModelDefaultWheres" />
+	</select>
+</mapper>

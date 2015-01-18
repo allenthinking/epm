@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="org.easyworld.pm.dao.PmValidationDao">
+		<sql id="pmValidationDefaultWhere">
+		<where>
+			<if test="projectId != null">
+				project_id = '${projectId}'
+			</if>
+			<if test="validationStatus != null">
+				validation_status = '${validationStatus}'
+			</if>
+			<if test="buildType != null">
+				project_type = '${buildType}'
+			</if>
+		</where>
+	</sql>
+	
+	<select id="selectValidationsByProjectId" parameterType="java.lang.String" resultType="org.easyworld.pm.bean.PmValidationBean">
+		<![CDATA[
+			SELECT 
+				pm_validation_info.project_id AS projectId ,
+				pm_validation_info.validation_id AS validationId,
+				pm_validation_info.validation_way AS validationWay,
+				pm_validation_info.validation_type AS validationType,
+				pm_validation_info.validation_status AS validationStatus,
+				pm_validation_info.validation_event AS validationEvent,
+				pm_validation_info.validation_value AS validationValue,
+				pm_validation_info.validation_message_id AS validationMessageId,
+				pm_validation_info.validation_description AS validationDescription
+			FROM pm_validation_info AS pm_validation_info
+			WHERE pm_validation_info.project_id = '${value}'
+		]]>
+	</select>
+	
+	<select id="selectDefaultGenerateValidation" parameterType="org.easyworld.pm.bean.PmValidationBean" resultType="org.easyworld.pm.bean.PmValidationBean">
+		SELECT 
+			pm_validation_info.project_id AS projectId ,
+			pm_validation_info.validation_id AS validationId,
+			pm_validation_info.validation_way AS validationWay,
+			pm_validation_info.validation_type AS validationType,
+			pm_validation_info.validation_status AS validationStatus,
+			pm_validation_info.validation_event AS validationEvent,
+			pm_validation_info.validation_value AS validationValue,
+			pm_validation_info.validation_message_id AS validationMessageId,
+			pm_validation_info.validation_description AS validationDescription
+		FROM pm_validation_info AS pm_validation_info
+		WHERE validation_status = '${validationStatus}' AND build_type = '${buildType}' AND project_id = '${projectId}'
+	</select>
+</mapper>

@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN" 
+"http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="org.easyworld.pm.dao.PmPropertyDao">
+	<sql id="pmPropertyDefaultColumns">
+		<![CDATA[
+			property_id AS propertyId,
+			property_name AS propertyName,
+			property_value AS propertyValue,
+			property_description AS propertyDescription,
+			property_data_type AS propertyDataType,
+			property_html_type AS propertyHtmlType,
+			property_type AS propertyType,
+			property_size AS propertySize,
+			create_date AS createDate,
+			create_login_no AS createLoginNo,
+			primary_type AS primaryType,
+			remark AS remark
+		]]>
+	</sql>
+
+	<sql id="pmPropertyDetailWhere">
+		<where>
+			<if test="propertyId != null">
+				property_id = '#{propertyId}'
+			</if>
+			<if test="propertyName != null">
+				property_name = '#{propertyName}'
+			</if>
+			<if test="propertyValue != null">
+				property_value = '#{propertyValue}'
+			</if>
+			<if test="createLoginNo != null">
+				create_login_no = '#{createLoginNo}'
+			</if>
+		</where>
+	</sql>
+	<insert id="insertPmModelPropertyReletionship" parameterType="org.easyworld.pm.bean.PmModelPropertyBean">
+		<![CDATA[
+			INSERT INTO pm_model_property_rel
+			(mp_rel_no,model_id,property_id)
+			VALUES(
+			#{mpRelNo},#{modelId},#{propertyId}
+			)
+		]]>
+
+	</insert>
+
+	<insert id="insertPmPropertyLanguageBean" parameterType="org.easyworld.pm.bean.PmPropertyLanguageBean">
+		<![CDATA[
+			INSERT INTO pm_property_language_rel(
+				property_id,
+				language_key,
+				language_value,
+				language_alias,
+				is_default
+			)VALUES(
+				#{propertyId},
+				#{languageKey},
+				#{languageValue},
+				#{languageAlais},
+				#{isDefault}
+			);
+		]]>
+	</insert>
+
+	<insert id="insertPmProperty" parameterType="org.easyworld.pm.bean.PmPropertyBean">
+		<![CDATA[
+			INSERT INTO pm_property_info
+			(
+				property_id,
+				property_name,
+				property_value,
+				property_description,
+				create_date,
+				create_login_no,
+				property_html_type,
+				property_type,
+				property_size,
+				display_type,
+				primary_type,
+				remark
+			)VALUES
+			(
+				#{propertyId},
+				#{propertyName},
+				#{propertyValue},
+				#{propertyDescription},
+				#{createDate},
+				#{createLoginNo},
+				#{propertyHtmlType},
+				#{propertyType},
+				#{propertySize},
+				#{displayType},
+				#{primaryType},
+				#{remark}
+			)
+		]]>
+	</insert>
+
+	<select id="getProperties" resultType="org.easyworld.pm.bean.PmPropertyBean"
+		parameterType="java.util.Map">
+		SELECT
+		<include refid="pmPropertyDefaultColumns" />
+		FROM pm_property_info
+		<include refid="pmPropertyDetailWhere" />
+	</select>
+
+	<select id="getPropertyById" resultType="org.easyworld.pm.bean.PmPropertyBean"
+		parameterType="java.lang.String">
+		SELECT
+		<include refid="pmPropertyDefaultColumns" />
+		FROM pm_property_info AS pm_property_info
+		WHERE
+		pm_property_info.property_id = '${value}';
+	</select>
+
+	<select id="getPropertiesByModel" resultType="org.easyworld.pm.bean.PmPropertyBean"
+		parameterType="java.util.Map">
+		SELECT
+		pm_property_info.property_id AS propertyId,
+		pm_property_info.property_name AS propertyName,
+		pm_property_info.property_value AS propertyValue,
+		pm_property_info.property_description AS propertyDescription,
+		pm_property_info.create_date AS createDate,
+		pm_property_info.create_login_no AS createLoginNo,
+		pm_property_info.property_type AS propertyType,
+		pm_property_info.property_html_type AS propertyHtmlType,
+		pm_property_info.primary_type AS primaryType,
+		pm_property_info.display_type AS displayType,
+		pm_property_info.remark
+		AS remark
+		FROM pm_property_info AS pm_property_info
+		LEFT JOIN
+		pm_model_property_rel AS pm_model_property_rel ON
+		pm_property_info.property_id = pm_model_property_rel.property_id
+		WHERE
+		pm_model_property_rel.model_id = #{modelId}
+	</select>
+
+	<select id="getAllCountryMoney" resultType="org.easyworld.pm.bean.CountryPMBean">
+		select country_name
+		AS countryName,bef_money AS befMoney,ur_money AS urMoney from
+		country_money
+	</select>
+
+	<select id="getAllCountryCode" resultType="org.easyworld.pm.bean.CountryPMBean"
+		parameterType="java.util.Map">
+		select country_value AS countryValue from country_code
+		where country_value like CONCAT('%',#{countryName},'%')
+	</select>
+
+	<insert id="insertResult" parameterType="java.util.Map">
+		insert
+		into
+		country_result
+		(country_name,result_type,country_code,allowance_money)
+		values
+		(#{country_name},#{result_type},#{counrty_code},#{allowance_money});
+	</insert>
+
+	<!-- Property Validation -->
+	<select id="selectPropertyOfValidation" parameterType="java.lang.String"
+		resultType="org.easyworld.pm.bean.PmPropertyValidationBean">
+		SELECT
+		b.validation_id AS validationId,
+		b.validation_way AS
+		validationWay,
+		b.validation_type AS validationType,
+		b.build_type AS
+		buildType,
+		b.validation_status AS validationStatus,
+		b.validation_event
+		AS validationEvent,
+		b.validation_value AS validationValue,
+		b.validation_message_id AS validaionMessageId,
+		c.language_key as
+		languageKey,
+		c.language_value AS languageValue,
+		c.language_alais AS
+		languageAlais,
+		c.is_default AS isDefault
+		FROM
+		pm_property_validation_info AS a
+		LEFT JOIN pm_validation_info AS b ON
+		a.validation_id = b.validation_id
+		LEFT JOIN pm_validation_language_info
+		AS c ON b.validation_message_id
+		= c.validation_message_id
+		WHERE
+		a.property_id = '${value}';
+	</select>
+
+	<!-- Property Language -->
+	<select id="selectPropertyLanguageByPropertyId" parameterType="java.lang.String"
+		resultType="org.easyworld.pm.bean.PmPropertyLanguageBean">
+		SELECT pm_property_language_rel.property_id AS propertyId,
+		pm_property_language_rel.language_key AS languageKey,
+		pm_property_language_rel.language_value AS languageValue,
+		pm_property_language_rel.language_alias AS languageAlais
+		FROM
+		pm_property_language_rel AS pm_property_language_rel
+		WHERE
+		pm_property_language_rel.property_id = '${value}';
+	</select>
+
+
+
+
+	<select id="selectPropertyWithLanguages" resultType="org.easyworld.pm.bean.PmPropertyLanguageBean"
+		parameterType="java.util.Map">
+		SELECT
+		pm_property_info.property_id AS propertyId,
+		pm_property_info.property_name AS propertyName,
+		pm_property_language_rel.language_key AS languageKey,
+		pm_property_language_rel.language_value AS languageValue
+		FROM
+		pm_property_info AS pm_property_info
+		LEFT JOIN pm_model_property_rel AS
+		pm_model_property_rel ON
+		pm_property_info.property_id =
+		pm_model_property_rel.property_id
+		LEFT
+		JOIN pm_property_language_rel AS
+		pm_property_language_rel on
+		pm_property_info.property_id =
+		pm_property_language_rel.property_id
+		WHERE
+		pm_model_property_rel.model_id = '${modelId}'
+		AND
+		pm_property_language_rel.language_key= '${languageKey}';
+
+	</select>
+
+	<update id="updatePmPropertyBean" parameterType="org.easyworld.pm.bean.PmPropertyBean">
+		UPDATE pm_property_info
+		<set>
+			<if test="propertyHtmlType != null">
+				property_html_type = ${propertyHtmlType}
+			</if>
+		</set>
+		WHERE
+		pm_property_info.property_id = #{propertyId}
+
+	</update>
+
+	<!-- Property Validation -->
+	<insert id="insertPropertyValidation" parameterType="org.easyworld.pm.bean.PmPropertyValidationBean">
+		<![CDATA[
+			INSERT INTO pm_property_validation_info(
+				property_id,
+				validation_id,
+				validation_event
+			)VALUES(
+				#{propertyId},
+				#{validationId},
+				#{validationEvent}
+			);
+		]]>
+	</insert>
+
+	<insert id="insertPropertyEvent" parameterType="org.easyworld.pm.bean.PmPropertyEventBean">
+		<![CDATA[
+			INSERT INTO pm_property_event_info(
+			property_id,
+			event_id,
+			event_type,
+			event_logic)VALUES(
+			propertyId,
+			eventId,
+			eventType,
+			eventLogic
+			)
+		]]>
+	</insert>
+
+	<select id="selectPropertyEventsByPropertyId" parameterType="java.lang.String"
+		resultType="org.easyworld.pm.bean.PmPropertyEventBean">
+		SELECT a.property_id AS propertyId,
+			b.validation_id AS validationId,
+			b.validation_type AS validationType,
+			b.validation_way AS validationWay,
+			c.event_id AS eventId,
+			c.event_name AS eventName,
+			c.event_type AS eventType,
+			c.event_logic AS eventLogic
+		FROM pm_property_validation_info AS a 
+			LEFT JOIN pm_validation_info AS b  ON a.validation_event = b.validation_id
+			LEFT JOIN pm_event_info AS c ON b.validation_event = c.event_id
+		WHERE a.property_id = '${value}'
+	</select>
+
+	<select id="selectProertyValidationsByPropertyId" parameterType="java.lang.String"
+		resultType="org.easyworld.pm.bean.PmPropertyValidationBean">
+		SELECT
+		pm_property_validation_info.property_id AS propertyId
+		,
+		pm_property_validation_info.validation_id AS validationId,
+		pm_property_validation_info.validation_way AS validationWay,
+		pm_property_validation_info.validation_type AS validationType,
+		pm_property_validation_info.validation_status AS validationStatus,
+		pm_property_validation_info.validation_event AS validationEvent,
+		pm_property_validation_info.validation_value AS validationValue,
+		pm_property_validation_info.validation_message_id AS
+		validationMessageId,
+		pm_property_validation_info.validation_description AS
+		validationDescription
+		FROM pm_property_validation_info AS
+		pm_property_validation_info
+		WHERE
+		pm_property_validation_info.property_id = '${value}'
+	</select>
+</mapper>
